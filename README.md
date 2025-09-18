@@ -76,5 +76,5 @@ mpiexec -n 64 python3 /path/to/your/3D_S.py
 ```
 
 ## Contact
-For more information, please contact Xiuhong Xu at `xiuhong_xu@brown.edu`.
+For more information, please contact Xiuhong Xu at `xx55@rice.edu`.
 
