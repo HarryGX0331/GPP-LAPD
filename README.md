@@ -60,7 +60,19 @@ The simulation outputs several fields (e.g., `Ez`, `Er`, `Ea`, `Bz`, `Br`, `Ba`)
 ## Example
 Below is an example of a command to start a simulation with 64 processes:
 ```bash
-mpirun -np 64 python script.py
+mpirun -np 64 python /path/to/your/3D_S.py
+```
+### Submit with Slurm
+Alternatively, here is an example Slurm batch script for running the same simulation on 64 processes:
+```BASH
+#!/bin/bash
+#SBATCH -n 64
+#SBATCH -t 48:00:00
+#SBATCH --mem=640G
+#SBATCH -J simulation_2.5GHz_1.2kG_2e13_kz_4cm_100ns
+#SBATCH --output=/path/to/output/%A.out
+
+mpiexec -n 64 python3 /path/to/your/3D_S.py
 ```
 
 ## Contact
