@@ -105,7 +105,7 @@ After the simulation finishes, you can directly use data.py to read and extract 
 #!/bin/bash
 #SBATCH -n 10
 #SBATCH -t 24:00:00
-#SBATCH --mem=512G
+#SBATCH --mem=128G
 #SBATCH -J S_data
 #SBATCH --output=/path/to/output/%A_%a.out
 #SBATCH --array=0-19 # Adjust this range according to how many simulation indices you have run
