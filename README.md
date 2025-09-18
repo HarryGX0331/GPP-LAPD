@@ -55,7 +55,7 @@ Replace `<num_processes>` with the desired number of MPI processes.
 - **envelope_1**: Gaussian envelope function to localize the source in the simulation.
 - **omega_pnsq**: Density distributon along r direction.
 - **k_z**: Fixed wavenumber along z direction.
-
+- **density**: Peak density.
 ### Notes on the Units
 - **Length**: normalized to $c / \omega_0\$, where $\omega_0\$ is a freely chosen plasma frequency.  
   For simplicity, in the code $\omega_0 = 1.5\text{GHz}\$.  
