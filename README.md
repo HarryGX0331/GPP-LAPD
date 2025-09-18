@@ -62,6 +62,7 @@ Replace `<num_processes>` with the desired number of MPI processes.
   For simplicity, in the code $\omega_0 = 1.5\text{GHz}\$.  
 - **Time**: normalized to $1 / \omega_0\$.
 - **Frequencies**: normalized to $\omega_0$. 
+
 When choosing $\omega_0$, make sure it is appropriate for your simulation:  
 
 - It should not be so small that reaching the desired physical time requires an excessively long normalized time.  
