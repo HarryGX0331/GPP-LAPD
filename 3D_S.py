@@ -8,8 +8,6 @@ import pathlib
 import time
 import h5py
 import numpy as np
-import matplotlib.pyplot as plt
-from matplotlib.animation import FuncAnimation, FFMpegWriter
 import dedalus.public as d3
 import dedalus.core as dec
 from dedalus.tools import post
@@ -29,22 +27,66 @@ if rank == 0:
 
 # FILEHANDLER_TOUCH_TMPFILE = True
 def run_simulation(index, output_folder):
-    Nr = 64
-    Na = 64
+    Nr = 128
+    Na = 128
     Nz = 128
-    #ratio = np.tanh(0.6*float(index)*0.1)
-    ratio = np.tanh(0.6*float(index)*0.025)
+    
+    
+    ne_min, ne_max = 5e12, 1e13
+    num_points = 20
+    ne_t = np.linspace(-3, 3, num_points)
 
-    # Lz = 100
+
+    #ne_list = ne_min + (ne_max - ne_min) * 0.5 * (np.tanh(ne_t) + 1)
+    ne_list = np.linspace(ne_min, ne_max, num_points)
+    idx = int(index)     
+    density_for_1e12 = 5.18 * np.sqrt(3)
+
+
+    density_list = density_for_1e12 * np.sqrt(ne_list / 1e12)
+    density = density_list[idx]
+    print(density)
+    #ratio_list = 0.5*(np.tanh(ne_t)+1)
+    #ratio = ratio_list[idx]
+    #ratio = np.tanh(0.6*float(index)*0.05)  # density distribution over time, sampling rate 0.05 ms 
+    #ratio = 1
     Lz = 20
+    #Lz = 40
+    #Lz = 400
 
-    sigma= 3.73333 # ratio of cyclotron frequency to plasma frequency
-    omega_n = 2 # driving frequency as a fraction of omega_p, or eigenfrequency of GPP mode
-
+    sigma= 2.24 # 1.2kG,  3.36 GHz  ratio of cyclotron frequency to plasma frequency
+    #sigma= 2.61 # 1.4kG,  3.36 GHz  ratio of cyclotron frequency to plasma frequency
+    #sigma= 1.12 # 1.2kG
+    #sigma= 0.112 # 1.2kG,  3.36 GHz  ratio of cyclotron frequency to plasma frequency  30GHz
+    
+    #omega_n = 2/3 # 1 GHz, driving frequency as a fraction of omega_p
+    #omega_n = 1 # 1.5 GHz, driving frequency as a fraction of omega_p
+    #omega_n = 2/3*0.5 # 0.5 GHz, driving frequency as a fraction of omega_p
+    #omega_n = 2/3*2 # 2 GHz, driving frequency as a fraction of omega_p
+    omega_n = 2/3*2.5 # 2.5 GHz, driving frequency as a fraction of omega_p
+    #omega_n = 1/3*2.5 # 2.5 GHz, driving frequency as a fraction of omega_p
+    #omega_n = 2 # 3 GHz, driving frequency as a fraction of omega_p
+    #omega_n = 2/3*3.5 # 3.5 GHz, driving frequency as a fraction of omega_p
+    #omega_n = 2/3*2.45 # 2.45 GHz, driving frequency as a fraction of omega_p
+    
+    #density = 5.18*np.sqrt(3) # 1x10e12
+    #density = 5.18*3 # 3x10e12, 3x5.18 GHz
+    
+    #density = 5.18*3*np.sqrt(2*10/3*ratio) # 1x10e13
+    #density = 40.15 # 2x10e13
+    
+    #kz = 41.8 # 2.09 cm^-1
+    kz = 31.4 # 2.09 cm^-1 4 cm
+    #kz = 15.7 # 2.09 cm^-1 4 cm
+    
     coords = d3.CartesianCoordinates('z','a','r')
     
     dist = d3.Distributor(coords, mesh=(8,8),  dtype= np.complex128)
-    r_basis = d3.Chebyshev(coords['r'], Nr, bounds=[0.5, 3.75], dealias=1)
+    r_left = 0.1  # 2 cm
+    r_right = 1.0 # 20 cm 
+    #r_left = 1.0  # 10 cm
+    #r_right = 4.0 # 40 cm 
+    r_basis = d3.Chebyshev(coords['r'], Nr, bounds=[r_left, r_right], dealias=1)
     theta_basis = d3.ComplexFourier(coords['a'], Na, bounds=[0, 2*np.pi], dealias=1)
     z_basis = d3.ComplexFourier(coords['z'], Nz, bounds=[0, Lz], dealias=1)
 
@@ -66,27 +108,32 @@ def run_simulation(index, output_folder):
     rq = dist.Field(name='rq', bases=r_basis)
     rq['g'] = r
 
-    #JOE
+    
     omega_pnsq = dist.Field(name='omega_pnsq', bases=[r_basis])
-    omega_pnsq['g'] = 0.5 * (np.tanh((1.528 - r)/0.31) + 1)*(17*ratio/1.5)**2
-    # omega_pnsq['g'] = 0.5 * (np.tanh((8.03728 - r)/1.6306) + 1)*(17*ratio/1.5)**2
-
+    
+    r1 = 0.25 # 9.5 cm #center of the density
+    r0 = 0.25 # -15 cm # center of the antenna
+    #r0 = 1.5 # -15 cm # center of the antenna
+    #theta0 = np.pi # center of the antenna
+    theta0 = 0.0
+    w = 0.0475   # 0.95 cm
+    epsilon = 0.001 #  <<solution in r direction
+    #density distributon
+    omega_pnsq['g'] = 0.5 * (np.tanh((r1 - r)/w) + 1)*(density/1.5)**2
+    #omega_pnsq['g'] = 0.5 * (np.tanh((r1 - r)/w) + 1)*(density*ratio/1.5)**2
+    #omega_pnsq['g'] = (1 - r) * 0.5 * (1 - np.tanh((r - 1) / epsilon))*(density*ratio/1.5)**2
+    #omega_pnsq['g'] = (1 - r/2) * 0.5 * (1 - np.tanh((r - 2) / epsilon))*(density*ratio/3)**2
+    
     envelope_1 = dist.Field(name='envelope_1', bases=[z_basis,theta_basis,r_basis])
-    # envelope['g'] = 4*np.exp(-(r-8.03728)**2 / 0.00089888)* np.exp(-(th-0.0)**2 / 0.00089888)*np.exp(-(z-Lz/2)**2 / 0.00089888)
-    #envelope_1['g'] = 4*np.exp(-(r-1.528)**2 / 0.00089888)* np.exp(-(th-0.0)**2 /0.00089888)*np.exp(-(z-Lz/4)**2 / 0.00089888)
-    envelope_1['g'] = 4*np.exp(-(r-0.6)**2 / 0.00089888)* np.exp(-(th-0.0)**2 /0.00089888)*np.exp(-(z-Lz/4)**2 / 0.00089888)
-    #envelope_1['g'] = 4*np.exp(-(r-0.25)**2 / 0.00089888)* np.exp(-(th-0.0)**2 /0.00089888)*np.exp(-(z-Lz/4)**2 / 0.00089888)
-
-    # envelope_2 = dist.Field(name='envelope_2', bases=[z_basis,theta_basis,r_basis])
-    # # envelope['g'] = 4*np.exp(-(r-8.03728)**2 / 0.00089888)* np.exp(-(th-0.0)**2 / 0.00089888)*np.exp(-(z-Lz/2)**2 / 0.00089888)
-    # envelope_2['g'] = 4*np.exp(-(r-1.528)**2 / 0.00089888)* np.exp(-(th-0.0)**2 /0.00089888)*np.exp(-(z-Lz/4-3.0)**2 / 0.00089888)
+    width = 0.0008988
+    #width = 0.0008988*4
+    #antenna
+    envelope_1['g'] = 4*np.exp(-(r-r0)**2 /width)* np.exp(-(th-theta0)**2 /width)*np.exp(-(z-Lz/4)**2 /width)  # x=-15, y=0
+    t_width = 30 # 1 ns
 
     def f(t):
-        # return np.exp(-1j*omega_n*t) # simple sinusoidal forcing
-        #return np.exp(-1j*omega_n*(t + 0.15*1e6*float(index) )) # simple sinusoidal forcing
-        #return np.exp(-1j*omega_n*(t + 0.15*1e6*float(index)*0.25 )) # simple sinusoidal forcing
-        return np.exp(-1j*omega_n*(t))*np.exp(-t**2/(1.5**2)) # simple sinusoidal forcing and pause
-        
+        return np.exp(-1j*omega_n*(t) + 1j*kz*z )*np.exp(-t**2/(t_width**2)) # simple sinusoidal forcing with fixed kz, pause after 1 ns
+        #return np.exp(-1j*omega_n*(t) + 1j*kz*z )
 
     def forcing(solver):
         return f(solver.sim_time)
@@ -119,18 +166,18 @@ def run_simulation(index, output_folder):
     problem.add_equation("dt(Ba) - dr(Ez) + dz(Er) + lift(tau_3) = 0")
     problem.add_equation("rq*dt(Bz) + dr(rq*Ea) - da(Er) + rq*lift(tau_4) = 0")
     
-    problem.add_equation("Ea(r=0.5) = 0")
-    problem.add_equation("Ea(r=3.75) = 0")
-    problem.add_equation("Ez(r=0.5) = 0")
-    problem.add_equation("Ez(r=3.75) = 0")
+    problem.add_equation("Ea(r=r_left) = 0")
+    problem.add_equation("Ea(r=r_right) = 0")
+    problem.add_equation("Ez(r=r_left) = 0")
+    problem.add_equation("Ez(r=r_right) = 0")
     
     
     ivp_solver = problem.build_solver('RK222')
     forcing_func.args = [ivp_solver]
     forcing_func.original_args = [ivp_solver]
 
-    ivp_solver.stop_sim_time = 150.0
-    # ivp_solver.stop_sim_time = 2500.0
+
+    ivp_solver.stop_sim_time = 100.0  # 66.6 ns
     ivp_solver.stop_wall_time = np.inf
     ivp_solver.stop_iteration = np.inf
 
@@ -142,11 +189,10 @@ def run_simulation(index, output_folder):
     
     shutil.rmtree(output_folder, ignore_errors=True)
 
-    # z_index = np.argmin(np.abs(domain.grid(0) - 26.3/2 - 10.0))
 
     t1 = time.time()
     analysis_tasks = []
-    check = ivp_solver.evaluator.add_file_handler(output_folder, iter=1, max_writes=200000)
+    check = ivp_solver.evaluator.add_file_handler(output_folder, iter=1, max_writes=500)
     check.add_task(Ez, layout='g', name='Ez')
     check.add_task(Er, layout='g', name='Er')
     check.add_task(Ea, layout='g', name='Ea')
@@ -170,8 +216,6 @@ def run_simulation(index, output_folder):
     logger.info("Starting timestepping.")
 
     while ivp_solver.proceed:
-        # if ivp_solver.iteration>=100:
-        #   envelope['g'] = 0#4*np.exp(-(r-30.56)**2 / 0.08)* np.exp(-(th-np.pi)**2 / 0.08)*np.exp(-(z-Lz/2)**2 / 0.08)
         ivp_solver.step(dt)
         dt = CFL.compute_timestep()
         logger.info(f"time step {dt}")
@@ -180,22 +224,39 @@ def run_simulation(index, output_folder):
     logger.info("Elapsed solve time: " + str(t2-t1) + ' seconds')
     logger.info('Iterations: %i' % ivp_solver.iteration)
     logger.info(f"Completed simulation for index {index}")
+    logger.info(f"Data has been saved at {output_folder}")
 
 def main():
-    indices = [str(i).zfill(2) for i in range(46,121)]   
-    #base_output_path = '/gpfs/home/xxiuhong/scratch/3d_3GHz_S/'
-    base_output_path = '/jobtmp/xxiuhong/3d_3GHz_S/'
+    indices = [str(i).zfill(2) for i in range(0,1)]   
+    #base_output_path = '/jobtmp/xxiuhong/3d_14kG_1GHz/'
+    #base_output_path = '/jobtmp/xxiuhong/3d_1GHz/'
+    #base_output_path = '/jobtmp/xxiuhong/3d_14kG_245GHz_3density/'
+    #base_output_path = '/jobtmp/xxiuhong/3d_245GHz_3density/'
+    #base_output_path = '/jobtmp/xxiuhong/3d_14kG_245GHz_1density/'
+    #base_output_path = '/jobtmp/xxiuhong/3d_14kG_1GHz_3density/'
+    #base_output_path = '/jobtmp/xxiuhong/3d_1p2kG_1GHz_1density/'
+    #base_output_path = '/jobtmp/xxiuhong/3d_1p2kG_1GHz_3density/'
+    #base_output_path = '/jobtmp/xxiuhong/3d_1p2kG_2p45GHz_1density/'
+    #base_output_path = '/jobtmp/xxiuhong/3d_1p2kG_2p45GHz_3density/'
+    #base_output_path = '/jobtmp/xxiuhong/3d_1p2kG_2p5GHz_2e13_4cm_/'
+    base_output_path = '/gpfs/home/xxiuhong/scratch/3d_1p2kG_2p5GHz_2e13_4cm_/'
+    
     
     os.makedirs(base_output_path, exist_ok=True)
-    # if len(sys.argv) != 2:
-    #     print("Usage: python script.py <index>")
-    #     sys.exit(1)
-    # index = sys.argv[1]
-    # output_folder = f'/gpfs/home/xxiuhong/scratch/3d_3GHz_32_test_{index}/'
-    # run_simulation(index, output_folder)
-    # shutil.rmtree(base_output_path, ignore_errors=True)
     for index in indices:
-        output_folder = f'{base_output_path}3d_3GHz_S_128_{index}/'
+        #output_folder = f'{base_output_path}3d_14kG_1GHz_S_128_{index}/'
+        #output_folder = f'{base_output_path}3d_1GHz_S_128_{index}/'
+        #output_folder = f'{base_output_path}3d_14kG_245GHz_3density_wave_{index}/'
+        #output_folder = f'{base_output_path}3d_245GHz_3density_S_128_{index}/'
+        #output_folder = f'{base_output_path}3d_14kG_245GHz_1density_S_128_{index}/'
+        #output_folder = f'{base_output_path}3d_14kG_1GHz_3density_wave_{index}/'
+        #output_folder = f'{base_output_path}3d_1p2kG_1GHz_1density_wave_{index}/'
+        #output_folder = f'{base_output_path}3d_1p2kG_1GHz_3density_wave_{index}/'
+        #output_folder = f'{base_output_path}3d_1p2kG_2p45GHz_1density_wave_{index}/'
+        #output_folder = f'{base_output_path}3d_1p2kG_2p45GHz_3density_wave_{index}/'
+        #output_folder = f'{base_output_path}3d_1p2kG_2p5GHz_1e13_4cm_wave_{index}/'
+        output_folder = f'{base_output_path}3d_1p2kG_2p5GHz_2e13_4cm_wave_{index}/'
+        
         run_simulation(index, output_folder)
 
 if __name__ == "__main__":
