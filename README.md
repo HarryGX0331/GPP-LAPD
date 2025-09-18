@@ -34,6 +34,18 @@ mpirun -np <num_processes> python script.py
 ```
 Replace `<num_processes>` with the desired number of MPI processes.
 
+Notes on MPI and Mesh
+	•	The number of MPI processes must equal the product of the mesh dimensions specified in the code.
+	•	Example: mesh = (8, 8) → -np 64
+	•	The mesh dimensions are constrained by the grid sizes:
+	•	Na = 128
+	•	Nz = 128
+	•	Each mesh dimension must:
+	1.	Be a factor of the corresponding grid size (128),
+	2.	Preferably be a power of two.
+	
+
+
 ### Simulation Parameters
 - **Nr, Na, Nz**: Number of grid points in radial, angular, and axial directions.
 - **Lz**: Length of the domain in the z-direction.
