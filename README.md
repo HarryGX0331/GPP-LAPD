@@ -42,8 +42,8 @@ Replace `<num_processes>` with the desired number of MPI processes.
 	   -	Na = 128
 	   -	Nz = 128
 	-	Each mesh dimension must:
-	1.	Be a factor of the corresponding grid size (128),
-	2.	Preferably be a power of two.
+	   1.	Be a factor of the corresponding grid size,
+	   2.	Preferably be a power of two.
 	
 
 
