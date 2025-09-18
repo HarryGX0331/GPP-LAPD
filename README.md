@@ -63,11 +63,11 @@ Replace `<num_processes>` with the desired number of MPI processes.
 - **Time**: normalized to $1 / \omega_0\$.
 - **Frequencies**: normalized to $\omega_0$. 
 
-   When choosing $\omega_0$, make sure it is appropriate for your simulation:  
+When **choosing $\omega_0$**, make sure it is appropriate for your simulation:  
 
-   - It should not be so small that reaching the desired physical time requires an excessively long normalized time.  
-   - It should not be so large that the corresponding length unit $c / \omega_0$ becomes too small.  
-   - Ideally, the **smallest physical distance of interest** should be larger than the grid spacing determined by $(Nr, Na, Nz)$.
+- It should not be so small that reaching the desired physical time requires an excessively long normalized time.  
+- It should not be so large that the corresponding length unit $c / \omega_0$ becomes too small.  
+- Ideally, the **smallest physical distance of interest** should be larger than the grid spacing determined by $(Nr, Na, Nz)$.
 ### Output
 The simulation outputs several fields (e.g., `Ez`, `Er`, `Ea`, `Bz`, `Br`, `Ba`) as HDF5 files. Each field represents a different component of the electric or magnetic field in the domain. Data files are stored in the specified output directory.
 ### Data Output Notes
