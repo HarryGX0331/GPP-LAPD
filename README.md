@@ -74,7 +74,7 @@ Alternatively, here is an example Slurm batch script for running the same simula
 #!/bin/bash
 #SBATCH -n 64
 #SBATCH -t 48:00:00
-#SBATCH --mem=640G
+#SBATCH --mem=128G
 #SBATCH -J simulation_2.5GHz_1.2kG_2e13_kz_4cm_100ns
 #SBATCH --output=/path/to/output/%A.out
 
