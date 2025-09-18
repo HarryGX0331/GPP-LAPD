@@ -108,7 +108,7 @@ After the simulation finishes, you can directly use data.py to read and extract 
 #SBATCH --mem=128G
 #SBATCH -J S_data
 #SBATCH --output=/path/to/output/%A_%a.out
-#SBATCH --array=0-19 # Adjust this range according to how many simulation indices you have run
+#SBATCH --array=0-19 # Adjust this range according to how many simulation indices you have run in 3D_S.py
 
 formatted_id=$SLURM_ARRAY_TASK_ID
 mpiexec --mca orte_base_help_aggregate 0 --mca btl ^openib -n 10 python3 /path/to/data.py $formatted_id
