@@ -39,8 +39,8 @@ Replace `<num_processes>` with the desired number of MPI processes.
 	-	The number of MPI processes must equal the product of the mesh dimensions specified in the code.
 	-	Example: mesh = (8, 8) → -np 64
 	-	The mesh dimensions are constrained by the grid sizes:
-	-	Na = 128
-	-	Nz = 128
+	   -	Na = 128
+	   -	Nz = 128
 	-	Each mesh dimension must:
 	1.	Be a factor of the corresponding grid size (128),
 	2.	Preferably be a power of two.
