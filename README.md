@@ -53,6 +53,8 @@ Replace `<num_processes>` with the desired number of MPI processes.
 - **sigma**: Ratio of cyclotron frequency to plasma frequency.
 - **omega_n**: Driving frequency as a fraction of the plasma frequency.
 - **envelope_1**: Gaussian envelope function to localize the source in the simulation.
+- **omega_pnsq**: Density distributon along r direction.
+- **k_z**: Fixed wavenumber along z direction.
 
 ### Output
 The simulation outputs several fields (e.g., `Ez`, `Er`, `Ea`, `Bz`, `Br`, `Ba`) as HDF5 files. Each field represents a different component of the electric or magnetic field in the domain. Data files are stored in the specified output directory.
