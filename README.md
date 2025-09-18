@@ -56,9 +56,10 @@ Replace `<num_processes>` with the desired number of MPI processes.
 - **omega_pnsq**: Density distributon along r direction.
 - **k_z**: Fixed wavenumber along z direction.
 
-### Notes on the units
-- **Length** normalized to \(c / \omega_p\), where \(\omega_p) is a freely choosen plasma frequency. For simplicity, I choose  \(\omega_p = 1.5GHz) in the code.
-- **Time** normalized to  \(1/\omega_p).
+### Notes on the Units
+- **Length**: normalized to \(c / \omega_p\), where \(\omega_p\) is a freely chosen plasma frequency.  
+  For simplicity, in the code \(\omega_p = 1.5\,\text{GHz}\).  
+- **Time**: normalized to \(1 / \omega_p\).
 ### Output
 The simulation outputs several fields (e.g., `Ez`, `Er`, `Ea`, `Bz`, `Br`, `Ba`) as HDF5 files. Each field represents a different component of the electric or magnetic field in the domain. Data files are stored in the specified output directory.
 
