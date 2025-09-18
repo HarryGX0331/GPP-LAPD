@@ -227,7 +227,7 @@ def run_simulation(index, output_folder):
     logger.info(f"Data has been saved at {output_folder}")
 
 def main():
-    indices = [str(i).zfill(2) for i in range(0,1)]   
+    indices = [str(i).zfill(2) for i in range(0,20)]   
     #base_output_path = '/jobtmp/xxiuhong/3d_14kG_1GHz/'
     #base_output_path = '/jobtmp/xxiuhong/3d_1GHz/'
     #base_output_path = '/jobtmp/xxiuhong/3d_14kG_245GHz_3density/'
