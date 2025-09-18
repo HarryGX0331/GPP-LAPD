@@ -62,7 +62,17 @@ Replace `<num_processes>` with the desired number of MPI processes.
 - **Time**: normalized to $1 / \omega_0\$.
 ### Output
 The simulation outputs several fields (e.g., `Ez`, `Er`, `Ea`, `Bz`, `Br`, `Ba`) as HDF5 files. Each field represents a different component of the electric or magnetic field in the domain. Data files are stored in the specified output directory.
+### Data Output Notes
 
+The simulation uses Dedalus file handlers to save intermediate results.  
+For example:
+
+```python
+check = ivp_solver.evaluator.add_file_handler(output_folder, iter=1, max_writes=500)
+```
+This prevents each HDF5 file from becoming too large.
+If a single file is too large, reading it later (e.g., with MPI-parallel postprocessing) may fail or cause I/O errors.
+By splitting output into smaller files, data is easier and safer to process.
 ## Example
 Below is an example of a command to start a simulation with 64 processes:
 ```bash
